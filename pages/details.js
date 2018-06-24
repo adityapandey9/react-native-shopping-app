@@ -19,33 +19,53 @@ import SendIntentAndroid from 'react-native-send-intent';
 const border = 'rgb(232, 229, 215)';
 
 class ListSpecific extends Component {
+
+  constructor(props){
+    super(props);
+  }
+
   render(){
     return(
       <View style={[{flexDirection: 'row'}]}>
-        <Text style={[{width: '50%', fontSize: 13, fontWeight: 'bold', borderColor: border, borderWidth: 1, textAlign: 'left', paddingLeft: 14}]}>{this.props.data.title}</Text>
-        <Text style={[{width: '50%', fontSize: 13, borderColor: border, borderWidth: 1, textAlign: 'center'}]}>{this.props.data.data}</Text>
+        <Text style={[{width: '50%', fontSize: 13, fontWeight: 'bold', borderColor: border, borderWidth: 1, textAlign: 'left', paddingLeft: 14}]}> {Object.keys(this.props.data)[0]}
+        </Text>
+        <Text style={[{width: '50%', fontSize: 13, borderColor: border, borderWidth: 1, textAlign: 'center'}]}> {this.props.data[Object.keys(this.props.data)[0]]}</Text>
       </View>
     )
   }
 }
 
-
 export default class DetailsScreen extends Component {
     constructor(props) {
       super(props);
-      this.items = this.props.navigation.state.params;
-      this._renderItem = this._renderItem.bind(this);
-      this.addtoFav = this.addtoFav.bind(this);
       this.state = {
         checked: false
       }
+      this.item = this.props.navigation.state.params.item;
+      this.product = this.item.val;
+      this._renderItem = this._renderItem.bind(this);
+      this.addtoFav = this.addtoFav.bind(this);
+      this.orderIt = this.orderIt.bind(this);
+      this.dkey = this.item.key;
+      this.mkey = ''+this.dkey;
+    }
+
+    componentDidMount(){
+      global.storage.load({
+        key: 'wishlist',
+        id: this.mkey
+      }).then(ret => {
+        this.setState({checked: true})
+      }).catch(err=>{
+        // console.error(err)
+      });
     }
 
     static navigationOptions = ({ navigation, navigationOptions }) => {
       const { params } = navigation.state;
-  
+
       return {
-        title: params ? params.item.title : 'Details',
+        title: params ? params.item.val.name : 'Details',
         tabBarVisible: false,
       };
     };
@@ -54,18 +74,35 @@ export default class DetailsScreen extends Component {
       SendIntentAndroid.sendPhoneDial(ConfigApp.phone)
     }
 
+    orderIt(){
+      this.props.navigation.navigate("Order", this.props.navigation.state.params);
+    }
+
     addtoFav(checked){
-      ToastAndroid.show("Added to the fav", ToastAndroid.SHORT);
-      this.setState({ checked })
+      if(this.state.checked){
+        global.storage.remove({
+          key: 'wishlist',
+          id:this.mkey,
+        });
+        this.setState({checked: false})
+        return;
+      }
+      global.storage.save({
+        key: 'wishlist',  // Note: Do not use underscore("_") in key!
+	      id: this.mkey,	  // Note: Do not use underscore("_") in id!	
+	      data: {data: this.item, date: new Date().toDateString()},
+	      expires: null,
+      });
+      this.setState({checked})
     }
 
     msgtoOwner(){
-      Linking.openURL(`whatsapp://send?text=hey I need to ask you about ${this.items.item.title}&phone=${ConfigApp.phone}`)
+      Linking.openURL(`whatsapp://send?text=hey I need to ask you about ${this.product.title}&phone=${ConfigApp.phone}`)
     }
 
     _renderItem ({item, index}) {
         return (
-          <TouchableOpacity activeOpacity={0.9} onPress={()=>this.props.navigation.navigate("Imageview", this.items)} >
+          <TouchableOpacity activeOpacity={0.9} onPress={()=>this.props.navigation.navigate("Imageview", this.product)} >
             <Image source={{uri: item}} key={index} style={[styless.img]} resizeMode='contain' />
           </TouchableOpacity>
         );
@@ -75,7 +112,7 @@ export default class DetailsScreen extends Component {
       return (
           <View style={[styles.exampleContainer,  styles.exampleContainerLight, {width: sliderWidth}]}>
               <Carousel
-                data={this.items.item.imgs}
+                data={this.product.asrc.imgs}
                 renderItem={this._renderItem}
                 sliderWidth={sliderWidth}
                 itemWidth={itemWidth}
@@ -88,17 +125,21 @@ export default class DetailsScreen extends Component {
   }
 
     render() {
+      let spe = this.product.specification;
+      if(typeof spe == "object")
+        spe = [spe];
+      // console.error(Object.keys(spe)[0], spe[Object.keys(spe)[0]])
       const imgs = this.layoutExample(3, '"Stack of cards" layout | Loop', 'stack');
       
-      let newprice = this.items.item.price-(this.items.item.price*(this.items.item.discount/100));
-      let discount = (this.items.item.discount || this.items.item.discount != 0) ? (
+      let newprice = this.product.price-(this.product.price*(this.product.discount/100));
+      let discount = (this.product.discount || this.product.discount != 0) ? (
         <Text style={[styless.cross, {marginLeft: 5, fontWeight: 'bold', color: 'orange'},  {backgroundColor: 'rgba(255,255,255,0.8)'}]}>
-          {this.items.item.discount}% off
+          {this.product.discount}% off
         </Text>
       ) : false;
-      let cross = (this.items.item.discount || this.items.item.discount != 0) ? (
+      let cross = (this.product.discount || this.product.discount != 0) ? (
         <Text style={[styless.cross, {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}, {backgroundColor: 'rgba(255,255,255,0.8)'}]}>
-            {this.items.item.price}
+            {this.product.price}
         </Text>
       ) : false;
 
@@ -109,9 +150,9 @@ export default class DetailsScreen extends Component {
               // scrollEventThrottle={200}
               directionalLockEnabled={true}>
                 { imgs }
-                <Text style={[styles.title, {backgroundColor: 'rgba(255,255,255,0.8)'}]}>{this.items.item.title}</Text>
+                <Text style={[styles.title, {backgroundColor: 'rgba(255,255,255,0.8)'}]}>{this.product.name}</Text>
                 <View style={{paddingTop: 15, paddingBottom: 8, flexDirection: 'row', marginLeft: 0, width: '100%', backgroundColor: 'white', elevation: 3}}>
-                  <Text style={[styles.title, {paddingHorizontal: 5},  {backgroundColor: 'rgba(255,255,255,0.8)'}]}>₹{newprice}</Text>
+                  <Text style={[styles.title, {paddingHorizontal: 5},  {backgroundColor: 'rgba(255,255,255,0.8)'}]}>₹{newprice.toFixed(2)}</Text>
                   {cross}
                   {discount}
                 </View>
@@ -131,6 +172,10 @@ export default class DetailsScreen extends Component {
                         checked={this.state.checked}
                         onCheckedChange={this.addtoFav} />
 
+                      <Button transparent danger onPress={()=> this.orderIt()}>
+                        <Icon active name="ios-cart" style={styles.icon} />
+                      </Button>
+
                       <Button transparent danger onPress={()=> this.calltoOwner()}>
                         <Icon active name="ios-call" style={styless.icon} />
                       </Button>
@@ -142,7 +187,7 @@ export default class DetailsScreen extends Component {
                 <Text style={[styles.title, {alignItems: 'flex-start', marginTop: 10, elevation: 3, backgroundColor: 'orange', color: 'white'}]}>Specifications</Text>
                 <View style={[styless.specifc, {flexDirection: 'column', elevation: 3}]}>
                   <FlatList
-                    data={this.items.item.specific} 
+                    data={spe} 
                     renderItem={({item}) => <ListSpecific data={item} />}
                   />
                 </View>        
@@ -165,7 +210,7 @@ const styless = StyleSheet.create({
     backgroundColor: 'white',
     elevation: 3
   },
-  icon: {fontSize: 24,},
+  icon: {fontSize: 24,color: "orange"},
   stext: {
     margin: 2,
   },

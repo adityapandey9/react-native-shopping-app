@@ -9,18 +9,18 @@ import ImageViewer from 'react-native-image-zoom-viewer';
 export default class ImageViewScreen extends Component {
     constructor(props) {
       super(props);
-      this.items = this.props.navigation.state.params.item.imgs;
+      this.items = this.props.navigation.state.params.asrc.imgs;
     }
 
     static navigationOptions = ({ navigation, navigationOptions }) => {
         const { params } = navigation.state;
     
         return {
-          title: params ? params.item.title : 'Details',
+          title: params ? params.name : 'Details',
           tabBarVisible: false,
         };
-      };
-  
+    };
+    
     render() {
       let images = [];
       for(let i=0;i<this.items.length;i++){

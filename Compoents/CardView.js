@@ -8,9 +8,8 @@ import {
     TouchableHighlight,
     ToastAndroid
   } from 'react-native';
-import SendIntentAndroid from 'react-native-send-intent';
-import ConfigApp from '../config';
 import SparkButton from 'react-native-sparkbutton';
+import firebase from 'react-native-firebase';
 
 export default class CardView extends Component {
     constructor(props){
@@ -19,41 +18,133 @@ export default class CardView extends Component {
         checked: false
       }
       this.addtoFav = this.addtoFav.bind(this);
+      this.getStatus = this.getStatus.bind(this);
+      this.cancelOrder = this.cancelOrder.bind(this);
+      this.product = this.props.type ?{item: this.props.data.item.data} : this.props.data;
+      const aid = this.props.type ? this.props.data.item.data.key : this.props.data.item.key;
+      this.mkey = ''+aid;
+      // ToastAndroid.show("V: "+this.props.focus, ToastAndroid.SHORT);
+      global.storage.load({
+        key: 'wishlist',
+        id: this.mkey
+      }).then(ret => {
+        this.setState({checked: true})
+      }).catch(err=>{
+      });
     }
 
     calltoOwner(){
-      SendIntentAndroid.sendPhoneDial(ConfigApp.phone)
+      this.props.funcs("Order", this.props.data);
     }
 
     addtoFav(checked){
-      ToastAndroid.show("Added to the fav", ToastAndroid.SHORT);
-      this.setState({ checked })
+      if(this.state.checked){
+        global.storage.remove({
+          key: 'wishlist',
+          id:this.mkey,
+        });
+        this.setState({checked: false})
+        if(this.props.type)
+          this.props.pops(this.props.id);
+        return;
+      }
+      global.storage.save({
+        key: 'wishlist',  // Note: Do not use underscore("_") in key!
+	      id: this.mkey,	  // Note: Do not use underscore("_") in id!	
+	      data: {data: this.props.data.item, date: new Date().toDateString()},
+	      expires: null,
+      });
+      this.setState({checked})
+    }
+
+    cancelOrder(){
+      const uid =  (global.config<=1)? "s76aK38yMES6ATnXrFJiZnxhChs2" : firebase.auth().currentUser.uid;
+      firebase.database().ref("/orders/"+uid+"/"+this.product.item.ordkey).update({status: "Cancelled"}, (res)=>{
+        ToastAndroid.show("Your Order has been cancelled", ToastAndroid.SHORT);
+      })
+    }
+
+    getStatus(){
+      let timetext = false;
+      let left = false;
+      let etime = null;
+      let cancel = null;
+      //If it is wishlist
+      if(this.props.type == 2){
+        timetext = "Wishlist"
+        etime = this.props.data.item.date;
+        left = (<View>
+              <Button transparent onPress={()=>this.addtoFav(this.state.checked)}>
+                <Icon name="ios-close" style={[{fontWeight: 'bold', fontSize: 50}]} />
+              </Button>
+          </View>);
+      } else {
+        timetext = "Ordered";
+        etime = this.props.data.item.data.date;
+        left = (<View>
+                <Text style={{fontWeight: "bold"}}>
+                  Status: 
+                </Text>
+                <Text>
+                  {this.props.data.item.data.status}
+                </Text>
+          </View>);
+        if(this.product.item.status != "Cancelled"){
+          cancel = (<Body>
+            <Button transparent onPress={()=>this.cancelOrder()}>
+              <Text>Cancel Order</Text>
+            </Button>
+          </Body>);
+        }
+      }
+      return (
+        <CardItem>
+              <Left>
+                {left}
+              </Left>
+              {cancel}
+              <Right>
+                <Text style={{fontWeight: "bold"}}>
+                  {timetext} Time:
+                </Text>
+                <Text>
+                  {etime}
+                </Text>
+              </Right>
+            </CardItem>
+      );
     }
 
     render(){
-      let newprice = this.props.data.item.price-(this.props.data.item.price*(this.props.data.item.discount/100));
-      let discount = (this.props.data.item.discount || this.props.data.item.discount != 0) ? (
+      let product =  this.props.type ? this.props.data.item.data.val : this.props.data.item.val;
+      let status = this.props.type ? this.getStatus(): false;
+      // if(this.props.tre)
+        // console.error(product, this.props.data)
+      let price = product.price;
+      let newprice = price-(price*(product.discount/100));
+      newprice = newprice.toFixed(2);
+      let discount = (product.discount || product.discount != 0) ? (
         <Text style={{marginLeft: 5, fontWeight: 'bold', color: 'orange'}}>
-          {this.props.data.item.discount}% off
+          {product.discount}% off
         </Text>
       ) : false;
-      let cross = (this.props.data.item.discount || this.props.data.item.discount != 0) ? (
+      let cross = (product.discount || product.discount != 0) ? (
         <Text style={{textDecorationLine: 'line-through', textDecorationStyle: 'solid'}}>
-            {this.props.data.item.price}
+            {price}
         </Text>
       ) : false;
 
       return (
-        <TouchableHighlight underlayColor="white" activeOpacity={1} onPress={()=>this.props.funcs("Details", this.props.data)}>
-        <Content style={this.props.styles}>
-          <Card>
+        <TouchableHighlight style={[this.props.style,{paddingBottom: 0}]} underlayColor="white" activeOpacity={1} onPress={()=>this.props.funcs("Details", this.product)}>
+        <Content style={[this.props.styles, {padding: 0, marginBottom: -5, marginTop: -5, marginLeft: -5, elevation: 0}]}>
+          <Card padding={10} paddingLeft={14} margin={-1} elevation={0} transparent>
             <CardItem cardBody>
-              <Image source={{uri: this.props.data.item.img}} style={styles.img} resizeMode='contain' />
+              <Image source={{uri: product.msrc}} style={styles.img} resizeMode='contain' />
             </CardItem>
             <CardItem style={styles.upper}>
               <Body>
                 <Text style={{fontSize: 10, fontWeight: "700"}} numberOfLines={2}>
-                  {this.props.data.item.title}
+                  {product.name}
                 </Text>
                 <View style={{flexDirection: 'row', marginLeft: 0}}>
                   <Text style={{marginRight: 5, fontWeight: 'bold'}}>
@@ -78,13 +169,14 @@ export default class CardView extends Component {
                   checked={this.state.checked}
                   onCheckedChange={this.addtoFav} />
               </Left>
-              
+
               <Right>
                 <Button transparent danger onPress={()=> this.calltoOwner()}>
-                  <Icon active name="ios-call" style={styles.icon} />
+                  <Icon active name="ios-cart" style={styles.icon} />
                 </Button>
               </Right>
             </CardItem>
+            {status}
           </Card>
         </Content>
         </TouchableHighlight>
@@ -94,15 +186,14 @@ export default class CardView extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 3,
-    height: 14,
+    paddingTop: 2,
     alignItems: 'center',
-    marginBottom: 5,
+    paddingBottom: 3,
   },
   upper: {
     marginBottom: -4,
   },
-  icon: {fontSize: 30,},
+  icon: {fontSize: 20,},
   item: {
     flex: 1,
     overflow: 'hidden',

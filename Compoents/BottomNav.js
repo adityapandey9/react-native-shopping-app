@@ -43,13 +43,14 @@ export default class BottomNav extends Component {
            <TouchableHighlight onPress={() => jumpToIndex(index)} underlayColor="white" key={`tab-${route.key}`}>
              <View style={styles.bottom}>
                  {icon}
-                 <Text style={[{fontSize: 14}]}>{label}</Text>
+                 <Text style={[{fontSize: 14}, focused ? {color: "blue"}: {color: "gray"}]}>{label}</Text>
              </View>
            </TouchableHighlight>
       )
     })
+    // rgb(239, 250, 249)
       return(
-        <View style={[{flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'rgb(239, 250, 249)'}, styles.bottomnav, {elevation: 2}]} >
+        <View style={[{flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'white'}, styles.bottomnav, {elevation: 2}]} >
           {tabs}    
         </View>
       );

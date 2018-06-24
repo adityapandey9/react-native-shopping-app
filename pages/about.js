@@ -3,10 +3,10 @@ import {
     StyleSheet,
     Text,
     View,
-    Image
+    Image,
+    ScrollView
   } from 'react-native';
   
-import Layout from '../Compoents/Layout';
 import ConfigApp from '../config';
 
 export default class AboutScreen extends Component {
@@ -25,7 +25,7 @@ export default class AboutScreen extends Component {
         uri: 'https://firebasestorage.googleapis.com/v0/b/shop-744dd.appspot.com/o/splash.png?alt=media&token=1fca951a-cc3a-49b3-85dc-2e7e5a2f98c1'
       };
       return (
-        <Layout styles={styles.container} index={this.props.navigation.state.routeName} navi={this.props.navigation.navigate}>
+        <ScrollView style={styles.container}>
           <Text style={styles.welcome}>
             Welcome to {ConfigApp.name}!
           </Text>
@@ -36,7 +36,7 @@ export default class AboutScreen extends Component {
             This is Our Shop, we sell electronic and many other parts that you use in your home. We also build pipes.
             </Text>
           </View>
-        </Layout>
+        </ScrollView>
       );
     }
   }

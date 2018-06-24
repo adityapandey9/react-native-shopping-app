@@ -3,9 +3,10 @@ package com.shop;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.github.godness84.RNSparkButton.RNSparkButtonPackage;
 import io.invertase.firebase.RNFirebasePackage;
-import io.invertase.firebase.database.RNFirebaseDatabasePackage;
+import com.github.godness84.RNSparkButton.RNSparkButtonPackage;
+ import io.invertase.firebase.database.RNFirebaseDatabasePackage;
+import io.invertase.firebase.auth.RNFirebaseAuthPackage; // <-- Add this line
 
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.reactnativecomponent.splashscreen.RCTSplashScreenPackage;
@@ -34,9 +35,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
             new MainReactPackage(),
-            new RNSparkButtonPackage(),
             new RNFirebasePackage(),
+            new RNSparkButtonPackage(),
             new RNFirebaseDatabasePackage(),
+            new RNFirebaseAuthPackage(),
             new RCTSplashScreenPackage(),
             new MapsPackage(),
             new RNSendIntentPackage(),

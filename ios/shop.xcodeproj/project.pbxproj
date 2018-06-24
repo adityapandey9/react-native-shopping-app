@@ -63,7 +63,10 @@
 		CE6E229570F943309942C233 /* libAirMaps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 519CCCB391544753882C8487 /* libAirMaps.a */; };
 		B00E8AECE5494668825FAB4B /* libRNCandyRecord.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB6824EA77FD405B832DF183 /* libRNCandyRecord.a */; };
 		8454A2210C3D44DEA2CF7A1A /* libRCTSplashScreen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C5DA2D2C84A46A29B278885 /* libRCTSplashScreen.a */; };
-		7DC22ECF42604B868488AA3C /* libRNFirebase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F9E0618FD294D698BC8B987 /* libRNFirebase.a */; };
+		0E18CA0F584242429DA61213 /* libRNFirebase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C92FFBCE909E4E2D8BCB5B2E /* libRNFirebase.a */; };
+		BD25077BE9C34DAD82123E2E /* libSQLite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2FE81E02385848F687C5386C /* libSQLite.a */; };
+		670AB1EFFE174DD9951A6ABB /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 16EFF649392643F99B4749B4 /* libsqlite3.0.tbd */; };
+		D0A3C2B3E7ED464C811433D3 /* libReactNativePayments.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B67BC6595429431C8C7B4E93 /* libReactNativePayments.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -344,8 +347,13 @@
 		AB6824EA77FD405B832DF183 /* libRNCandyRecord.a */ = {isa = PBXFileReference; name = "libRNCandyRecord.a"; path = "libRNCandyRecord.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		C746524DDD944579A82C8DAF /* RCTSplashScreen.xcodeproj */ = {isa = PBXFileReference; name = "RCTSplashScreen.xcodeproj"; path = "../node_modules/react-native-smart-splash-screen/ios/RCTSplashScreen/RCTSplashScreen.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		0C5DA2D2C84A46A29B278885 /* libRCTSplashScreen.a */ = {isa = PBXFileReference; name = "libRCTSplashScreen.a"; path = "libRCTSplashScreen.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
-		7619064640A140E2AD17909B /* RNFirebase.xcodeproj */ = {isa = PBXFileReference; name = "RNFirebase.xcodeproj"; path = "../node_modules/react-native-firebase/ios/RNFirebase.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
-		2F9E0618FD294D698BC8B987 /* libRNFirebase.a */ = {isa = PBXFileReference; name = "libRNFirebase.a"; path = "libRNFirebase.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		7F88C70B9CAC44E48BD21AF7 /* RNFirebase.xcodeproj */ = {isa = PBXFileReference; name = "RNFirebase.xcodeproj"; path = "../node_modules/react-native-firebase/ios/RNFirebase.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		C92FFBCE909E4E2D8BCB5B2E /* libRNFirebase.a */ = {isa = PBXFileReference; name = "libRNFirebase.a"; path = "libRNFirebase.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		36760EB5055A4F599B83193E /* SQLite.xcodeproj */ = {isa = PBXFileReference; name = "SQLite.xcodeproj"; path = "../node_modules/react-native-sqlite-storage/src/ios/SQLite.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		2FE81E02385848F687C5386C /* libSQLite.a */ = {isa = PBXFileReference; name = "libSQLite.a"; path = "libSQLite.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		16EFF649392643F99B4749B4 /* libsqlite3.0.tbd */ = {isa = PBXFileReference; name = "libsqlite3.0.tbd"; path = "usr/lib/libsqlite3.0.tbd"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = sourcecode.text-based-dylib-definition; explicitFileType = undefined; includeInIndex = 0; };
+		BC64F710B0254BD4A31E2011 /* ReactNativePayments.xcodeproj */ = {isa = PBXFileReference; name = "ReactNativePayments.xcodeproj"; path = "../node_modules/react-native-payments/lib/ios/ReactNativePayments.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		B67BC6595429431C8C7B4E93 /* libReactNativePayments.a */ = {isa = PBXFileReference; name = "libReactNativePayments.a"; path = "libReactNativePayments.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -378,7 +386,10 @@
 				CE6E229570F943309942C233 /* libAirMaps.a in Frameworks */,
 				B00E8AECE5494668825FAB4B /* libRNCandyRecord.a in Frameworks */,
 				8454A2210C3D44DEA2CF7A1A /* libRCTSplashScreen.a in Frameworks */,
-				7DC22ECF42604B868488AA3C /* libRNFirebase.a in Frameworks */,
+				0E18CA0F584242429DA61213 /* libRNFirebase.a in Frameworks */,
+				BD25077BE9C34DAD82123E2E /* libSQLite.a in Frameworks */,
+				670AB1EFFE174DD9951A6ABB /* libsqlite3.0.tbd in Frameworks */,
+				D0A3C2B3E7ED464C811433D3 /* libReactNativePayments.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,6 +530,7 @@
 			isa = PBXGroup;
 			children = (
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
+				16EFF649392643F99B4749B4 /* libsqlite3.0.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -560,7 +572,9 @@
 				53A456F2D6684492994D475B /* AirMaps.xcodeproj */,
 				FB4901C779A44F66851D5065 /* RNCandyRecord.xcodeproj */,
 				C746524DDD944579A82C8DAF /* RCTSplashScreen.xcodeproj */,
-				7619064640A140E2AD17909B /* RNFirebase.xcodeproj */,
+				7F88C70B9CAC44E48BD21AF7 /* RNFirebase.xcodeproj */,
+				36760EB5055A4F599B83193E /* SQLite.xcodeproj */,
+				BC64F710B0254BD4A31E2011 /* ReactNativePayments.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1197,6 +1211,8 @@
 					"$(SRCROOT)/../node_modules/react-native-candy-record/ios",
 					"$(SRCROOT)/../node_modules/react-native-smart-splash-screen/ios/RCTSplashScreen/RCTSplashScreen",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
+					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
+					"$(SRCROOT)/../node_modules/react-native-payments/lib/ios/**",
 				);
 			};
 			name = Debug;
@@ -1228,6 +1244,8 @@
 					"$(SRCROOT)/../node_modules/react-native-candy-record/ios",
 					"$(SRCROOT)/../node_modules/react-native-smart-splash-screen/ios/RCTSplashScreen/RCTSplashScreen",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
+					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
+					"$(SRCROOT)/../node_modules/react-native-payments/lib/ios/**",
 				);
 			};
 			name = Release;
@@ -1254,6 +1272,8 @@
 					"$(SRCROOT)/../node_modules/react-native-candy-record/ios",
 					"$(SRCROOT)/../node_modules/react-native-smart-splash-screen/ios/RCTSplashScreen/RCTSplashScreen",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
+					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
+					"$(SRCROOT)/../node_modules/react-native-payments/lib/ios/**",
 				);
 			};
 			name = Debug;
@@ -1279,6 +1299,8 @@
 					"$(SRCROOT)/../node_modules/react-native-candy-record/ios",
 					"$(SRCROOT)/../node_modules/react-native-smart-splash-screen/ios/RCTSplashScreen/RCTSplashScreen",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
+					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
+					"$(SRCROOT)/../node_modules/react-native-payments/lib/ios/**",
 				);
 			};
 			name = Release;
@@ -1319,6 +1341,8 @@
 					"$(SRCROOT)/../node_modules/react-native-candy-record/ios",
 					"$(SRCROOT)/../node_modules/react-native-smart-splash-screen/ios/RCTSplashScreen/RCTSplashScreen",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
+					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
+					"$(SRCROOT)/../node_modules/react-native-payments/lib/ios/**",
 				);
 			};
 			name = Debug;
@@ -1359,6 +1383,8 @@
 					"$(SRCROOT)/../node_modules/react-native-candy-record/ios",
 					"$(SRCROOT)/../node_modules/react-native-smart-splash-screen/ios/RCTSplashScreen/RCTSplashScreen",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
+					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
+					"$(SRCROOT)/../node_modules/react-native-payments/lib/ios/**",
 				);
 			};
 			name = Release;

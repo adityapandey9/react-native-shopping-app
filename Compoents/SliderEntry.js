@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
-import { ParallaxImage } from 'react-native-snap-carousel';
-import styles , { sliderWidth, itemWidth, slideHeight } from '../styles/SliderEntry.style';
+import styles from '../styles/SliderEntry.style';
 
 export default class SliderEntry extends Component {
 
@@ -19,20 +18,19 @@ export default class SliderEntry extends Component {
         return (
             <Image
               source={{ uri: img }}
-              style={[{width: itemWidth, height: slideHeight-10, flex: 1, backgroundColor: 'white', padding: 5}]}
-              resizeMode='contain'
+              style={[{flex: 1, resizeMode: "contain"}]}
             />
         );
-    }
+    }  
 
     render () {
         const { data: { title }, even, isn, navi } = this.props;
 
         const uppercaseTitle = ((title || title != '') && this.props.ist == true) ? (
-            <View style={[styles.textContainer, even ? styles.textContainerEven : {}]}>
+            <View style={[styles.textContainer, {marginTop: 1, flex: 0.1, alignItems: "center"} ,even ? styles.textContainerEven : {}]}>
                 <Text
                 style={[styles.title, even ? styles.titleEven : {}]}
-                numberOfLines={2}>
+                numberOfLines={1}>
                     { title.toUpperCase() }
                 </Text>
             </View>
@@ -43,13 +41,12 @@ export default class SliderEntry extends Component {
         return (
             <TouchableOpacity
               activeOpacity={1}
-              style={styles.slideInnerContainer}
+              style={[this.props.style, {flex: 1}]}
               onPress={func}
               >
-                <View style={styles.shadow} />
-                <View style={[styles.imageContainer, even ? styles.imageContainerEven : {}]}>
+                <View style={[{flex: 0.9}]} />
+                <View style={[{position: "absolute", top: 0, left: 0, width: "100%", height: "100%"}, even ? {} : {}]}>
                     { this.image }
-                    <View style={[styles.radiusMask, even ? styles.radiusMaskEven : {}]} />
                 </View>
                 { uppercaseTitle }
             </TouchableOpacity>

@@ -1,151 +1,164 @@
 import React, { Component } from 'react';
-  
+
 import CardView from '../Compoents/CardView';
-import Banner from '../Compoents/Banner';
+import { Button, Icon, Drawer } from 'native-base';
+import firebase from 'react-native-firebase';
 
-import { View, ScrollView, Text, FlatList, StyleSheet } from 'react-native';
-import Carousel, { Pagination } from 'react-native-snap-carousel';
-import { sliderWidth, itemWidth } from '../styles/SliderEntry.style';
+import { TextInput, View, ScrollView, Text, FlatList, StyleSheet, ActivityIndicator, ToastAndroid } from 'react-native';
+import { sliderWidth } from '../styles/SliderEntry.style';
 import SliderEntry from '../Compoents/SliderEntry';
+import ListLayout from '../Compoents/ListLayout';
 import styles, { colors } from '../styles/index.style';
-import { ENTRIES1, ENTRIES2 } from './entries';
 import ConfigApp from '../config';
+import MenuScreen from './menu';
+import { withNavigationFocus } from 'react-navigation';
+import { ENTRIES1 } from './entries'
 
-const SLIDER_1_FIRST_ITEM = 1;
 
-export default class HomeScreen extends Component {
+class HomeScreen extends Component {
     constructor(props) {
       super(props);
       this.in = 0;
-      this.state = {isRefreshing: false, slider1ActiveSlide: SLIDER_1_FIRST_ITEM}
+      this.open = 0;
+      this.state = {data: null, isRefreshing: false, searchInput: ''}
       this.props.navigation.navigate = this.props.navigation.navigate.bind(this);
+      this.getData = this.getData.bind(this);
+      this.toggleDrawer = this.toggleDrawer.bind(this);
+      this.handleRefresh = this.handleRefresh.bind(this);
+      this.getData();
     }
-    static navigationOptions = {
+
+    static navigationOptions = ({ navigation, navigationOptions }) => {
+      const params  = navigation.state.params || {};
+      
+      return {
         title: ConfigApp.name,
-        headerLeft: null
+        headerLeft: (
+          params.headerRight
+        ),
+        // header: null,
+      };
     };
+
+    _setNavigationParams() {
+      let headerRight = <Button transparent
+      style={[{alignItems: "center", marginTop: "10%"}]}
+      onPress={() => this.toggleDrawer()}>
+      <Icon active name="ios-more" />
+    </Button>;
+    
+      this.props.navigation.setParams({ 
+        headerRight, 
+      });
+    }
+
+    toggleDrawer(){
+      if(this.open > 0){
+        this.drawer._root.close();
+        --this.open;
+      } else{
+        this.drawer._root.open();
+        ++this.open;
+      }
+    }
+    
+    componentWillMount() {
+      this._setNavigationParams();      
+    }
   
     _renderCardItem = (data) => (
-      <CardView styles={[{width: (sliderWidth/2)-5}, styless.products]} funcs={this.props.navigation.navigate} data={data} id={this.in++} />
+      <CardView styles={[{width: (sliderWidth/2)}]} focus={this.props.isFocused} funcs={this.props.navigation.navigate} data={data} id={this.in++} />
     );
 
-    _renderBannerItem = (data) => {
-      <Banner styles={[{width: 200}, styless.products]} data={data} id={this.in++} />
-    };
-
-  
     _keyExtractor = (item, index) => {
       item.id 
     };
 
-    onRefresh = async () => {
-     
+    handleRefresh(){
+      ToastAndroid.show("Start Loading", ToastAndroid.SHORT);
       this.setState({
         isRefreshing: false
       });
-    };
+    }
 
-    _renderItemWithParallax ({item, index}, parallaxProps) {
-      return (
-          <SliderEntry
-            data={item}
-            even={(index + 1) % 2 === 0}
-            ist = {true}
-            isn={false}
-            parallaxProps={parallaxProps}
-          />
-      );
+
+  getData(){
+    firebase.database().ref("/data").orderByKey().limitToFirst(4).once("value", (res)=>{
+      let list = res.val();
+      let data = [];
+    
+      for(let key in list){
+        let value = list[key];
+        value =  {id: key, val: value};
+        data = data.concat(value);
+      }
+      ToastAndroid.show(`${data.length} Products`, ToastAndroid.SHORT);
+      this.setState({data: data});
+      // console.error(`${JSON.stringify(data)}`);
+    }, (err)=> {
+      console.error(err)
+      ToastAndroid.show(err, ToastAndroid.SHORT);
+    })
   }
 
-    mainExample (number, title) {
-      const { slider1ActiveSlide } = this.state;
-
-      return (
-          <View style={styles.exampleContainer}>
-          <Text style={[styles.title, ]}>Deal Of the Day</Text>
-              <Carousel
-                ref={c => this._slider1Ref = c}
-                data={ENTRIES1}
-                renderItem={this._renderItemWithParallax}
-                sliderWidth={sliderWidth}
-                itemWidth={itemWidth}
-                firstItem={SLIDER_1_FIRST_ITEM}
-                inactiveSlideScale={0.94}
-                inactiveSlideOpacity={0.7}
-                containerCustomStyle={styles.slider}
-                contentContainerCustomStyle={styles.sliderContentContainer}
-                loop={true}
-                loopClonesPerSide={2}
-                // autoplay={true}
-                // autoplayDelay={500}
-                // autoplayInterval={3000}
-                onSnapToItem={(index) => this.setState({ slider1ActiveSlide: index }) }
-              />
-              <Pagination
-                dotsLength={ENTRIES1.length}
-                activeDotIndex={slider1ActiveSlide}
-                containerStyle={styles.paginationContainer}
-                dotColor={'rgba(255, 255, 255, 0.92)'}
-                dotStyle={styles.paginationDot}
-                inactiveDotColor={colors.black}
-                inactiveDotOpacity={0.4}
-                inactiveDotScale={0.6}
-                carouselRef={this._slider1Ref}
-                tappableDots={!!this._slider1Ref}
-              />
-          </View>
-      );
-  };
-
-  _renderItem = (data, i) => (
-    <CardView styles={[{width: 200}, styless.products]} funcs={this.props.navigation.navigate} data={{item: data}} key={i} />
-  );
-
-  _renderPlaceholder = i => <View style={styles.item} key={i} />;
 
     render() {
+      let slider = [];
+      for(let j=0;j<ENTRIES1.length;j++){
+        slider.push(<SliderEntry data={ENTRIES1[j]} style={styless.entry} ist={true} even={true} />)
+      }
 
-      const banner = this.mainExample(1, 'Default layout | Loop | Autoplay | Parallax | Scale | Opacity | Pagination with tappable dots');
+      let isloaded = null;
+      if(this.state.data != null){
+        isloaded = <View><Text style={[styles.title, {elevation: 3}]}>Our Products</Text>
+                  <FlatList
+                    data={this.state.data}
+                    numColumns={2}
+                    style={[styless.newv]}
+                    contentContainerStyle={{margin:0,padding:0}}
+                    keyExtractor={this._keyExtractor}
+                    renderItem={this._renderCardItem}
+                    onEndReached={this.handleRefresh}
+                    onEndThreshold={0}
+                  /></View>;
+      } else {
+        isloaded = <ActivityIndicator style={{marginTop: "40%"}} />
+      }
 
       return (
-        <View style={styles.container}>
-            <ScrollView
+        <Drawer style={styles.container} content={<MenuScreen navigate={this.props.navigation.navigate} />}  ref={(ref) => { this.drawer = ref; }} tapToClose={true} onClose={()=>this.drawer._root.close()} >
+          <ScrollView
               style={styles.scrollview}
-              // scrollEventThrottle={200}
+              scrollEventThrottle={200}
               directionalLockEnabled={true}>
-                { banner }
-                <Text style={[styles.title, {elevation: 3}]}>Our Products</Text>
-                <FlatList
-                  onRefresh={this.onRefresh}
-                  data={ENTRIES2}
-                  numColumns={2}
-                  keyExtractor={this._keyExtractor}
-                  renderItem={this._renderCardItem}
-                  refreshing={this.state.isRefreshing}
-                />
+                  <TextInput placeholder={"Search for Products"}  onSubmitEditing={()=>this.props.navigation.navigate("Search", {title: this.state.searchInput})} onChangeText={(txt)=>this.setState({searchInput: txt})} style={[styless.searchInput, {elevation: 3}]} underlineColorAndroid="transparent" />
+                  <ListLayout title={""} width={200}>
+                    {slider}
+                  </ListLayout>
+                  {isloaded}
+                  { this.state.isRefreshing?  <ActivityIndicator />: false }
             </ScrollView>
-        </View>
+        </Drawer>
       );
     }
   }
   
 const styless = StyleSheet.create({
-    container: {
-      flex: 1,
+    newv: {
+      marginLeft: 7,
     },
-    item: {
-      flex: 1,
-      height: 260,
+    entry: {
+      width: 100, 
+      height: 90,
       margin: 5,
     },
-    list: {
-      flex: 1
-    },
-    products: {
-      margin: 3,
-      // borderColor: 'red',
-      // borderWidth: 2,
-      // height: 160
+    searchInput: {
+      backgroundColor: "white",
+      color: "#212121",
+      borderRadius: 3,
+
     }
 });
+
+export default withNavigationFocus(HomeScreen);
   

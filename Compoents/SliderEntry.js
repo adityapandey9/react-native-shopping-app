@@ -18,7 +18,7 @@ export default class SliderEntry extends Component {
         return (
             <Image
               source={{ uri: img }}
-              style={[{flex: 1, resizeMode: "contain"}]}
+              style={[{flex: 1, resizeMode: "contain", }]}
             />
         );
     }  

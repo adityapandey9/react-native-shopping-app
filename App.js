@@ -29,7 +29,7 @@ import SplashScreen from 'react-native-smart-splash-screen'
 
 
 //Initialize the Config
-global.config = 2;
+global.config = 1;
 
 //List of Tabs in Bottom navigation bar
 const tabList = [

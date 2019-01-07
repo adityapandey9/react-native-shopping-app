@@ -4,7 +4,7 @@ import {
     View,
     ScrollView,
     Text,
-    ActivityIndicator, ToastAndroid, FlatList
+    ActivityIndicator, ToastAndroid, FlatList, TouchableHighlight
   } from 'react-native';
 
 import { sliderWidth } from '../styles/SliderEntry.style';
@@ -32,20 +32,21 @@ export default class TrendScreen extends Component {
     };
 
   getData(){
-    firebase.database().ref("/data").orderByKey().limitToFirst(10).once("value", (res)=>{
+    firebase.database().ref("/data").orderByKey().limitToFirst(5).once("value", (res)=>{
       let list = res.val();
       let data = {"electronics": [], "personal": [], "home": []};
       var i = 0;
+      // console.error("L: ", list)
         for(let j=0;j<list.length;j++){
           switch(list[j].cate){
             case 1:
-              data["electronics"].push({id: j, val:list[j]});
+              data["electronics"].push({key: j, val:list[j]});
               break;
             case 2:
-              data["personal"].push({id: j, val:list[j]});
+              data["personal"].push({key: j, val:list[j]});
               break;
             case 3:
-              data["home"].push({id: j, val:list[j]});
+              data["home"].push({key: j, val:list[j]});
           }
         }
       // ToastAndroid.show(`${data} Products`, ToastAndroid.SHORT);
@@ -58,7 +59,7 @@ export default class TrendScreen extends Component {
   }
 
   _renderCardItem = (data) => (
-    <CardView styles={[{width: (sliderWidth/2)}]} style={styles.entry} funcs={this.props.navigation.navigate} data={data} id={this.in++} />
+    <CardView styles={[{width: (sliderWidth/2)}]} style={styles.entry} funcs={this.props.navigation.navigate} data={data} key={this.in++} />
   );
 
   _keyExtractor = (item, index) => {
@@ -77,11 +78,18 @@ export default class TrendScreen extends Component {
         bigel.push(<View style={[{backgroundColor: "white", marginBottom: 10, flexDirection: "column"}]}>
           <Text style={[styles.head, {alignSelf: "center"}]}>{key}</Text>
           <FlatList
+              ItemSeparatorComponent={({highlighted}) => (
+                <View style={[highlighted && {marginLeft: 0}]} />
+              )}
               data={data}
               showsHorizontalScrollIndicator={false}
               horizontal={true}
-              keyExtractor={this._keyExtractor}
-              renderItem={this._renderCardItem}
+              renderItem={({item, separators}) => (
+                <TouchableHighlight onShowUnderlay={separators.highlight}
+                onHideUnderlay={separators.unhighlight} onPress={()=> this.props.navigation.navigate("Details", item)}>
+                        <CardView styles={[{width: (sliderWidth/2)}]} focus={this.props.isFocused} data={item} />
+                </TouchableHighlight>
+              )}
             /></View>);
       }
 

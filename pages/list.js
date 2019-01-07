@@ -6,6 +6,7 @@ import {
     ToastAndroid,
     ActivityIndicator,
     Text,
+    TouchableHighlight
   } from 'react-native';
 
 import CardView from '../Compoents/CardView';
@@ -50,7 +51,7 @@ export default class ListScreen extends Component {
 
     popElement(val){
       this.state.data.splice(val, 1)
-      ToastAndroid.show("Pop: "+val, ToastAndroid.SHORT);
+      ToastAndroid.show("Removed from wishlist", ToastAndroid.SHORT);
     }
   
     getData(){
@@ -60,7 +61,7 @@ export default class ListScreen extends Component {
         });
         return;
       }
-      if(!firebase.auth().currentUser)
+      if(!firebase.auth().currentUser && global.config>1)
         return;
       const uid =  (global.config<=1)? "s76aK38yMES6ATnXrFJiZnxhChs2" : firebase.auth().currentUser.uid;
       firebase.database().ref("/orders/"+uid).once("value", (res)=>{
@@ -72,7 +73,7 @@ export default class ListScreen extends Component {
           obj["ordkey"] = keyi;
           let proms = firebase.database().ref("data/"+obj.id).once("value", (pro)=>{
             const val = pro.val();
-            var robj = {id: obj.id, ordkey: obj.ordkey, status: obj.status, date: obj.date, val};
+            var robj = {key: obj.id, ordkey: obj.ordkey, status: obj.status, date: obj.date, val};
             data.push({data: robj});
           }, (err)=>{
             console.error("Er: ", err);
@@ -94,19 +95,27 @@ export default class ListScreen extends Component {
       }
       if(this.state.data.length == 0){
         return (
-          <View style={[styles.container, {flex: 1, alignItems: "center", marginTop: "15%", fontSize: 20, fontWeight: 'bold',}]}>
-            <Text>No, item is present here.</Text>
+          <View style={[styles.container, {flex: 1, alignItems: "center", marginTop: "15%"}]}>
+            <Text style={[{fontSize: 20, fontWeight: 'bold',}]}>No, item is present here.</Text>
           </View>
         )
       } 
+      // console.error(this.state.data)
       return (
         <View style={[styles.container, {flex: 1}]}>
           <FlatList
+                    ItemSeparatorComponent={({highlighted}) => (
+                      <View style={[highlighted && {marginLeft: 0}]} />
+                    )}
                     data={this.state.data}
                     numColumns={1}
                     contentContainerStyle={{margin:0,padding:0}}
-                    keyExtractor={this._keyExtractor}
-                    renderItem={this._renderCardItem}
+                    renderItem={({item, separators}) => (
+                      <TouchableHighlight onShowUnderlay={separators.highlight}
+                      onHideUnderlay={separators.unhighlight} onPress={()=> this.props.navigation.navigate("Details", item.data)}>
+                              <CardView styles={[{width: (sliderWidth)}]} pops={this.popElement}  funcs={this.props.navigation.navigate}  type={this.items+1} data={item} />
+                      </TouchableHighlight>
+                    )}
                   />
         </View>
       );

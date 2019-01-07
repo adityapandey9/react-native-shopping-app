@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import CardView from '../Compoents/CardView';
 import firebase from 'react-native-firebase';
 
-import { TextInput, ScrollView, Text, FlatList, StyleSheet, ActivityIndicator, ToastAndroid, View } from 'react-native';
+import { TextInput, ScrollView, Text, FlatList, StyleSheet, ActivityIndicator, ToastAndroid, View, TouchableHighlight } from 'react-native';
 import { sliderWidth } from '../styles/SliderEntry.style';
 import styles, { colors } from '../styles/index.style';
 
@@ -47,7 +47,7 @@ export default class SearchScreen extends Component {
                 let value = list[key];
                 if(value == null)
                   continue;
-                value =  {id: key, val: value};
+                value =  {key: key, val: value};
                 data = data.concat(value);
               }
               ToastAndroid.show(`${data.length} Products`, ToastAndroid.SHORT);
@@ -66,8 +66,16 @@ export default class SearchScreen extends Component {
                     numColumns={2}
                     style={[styless.newv]}
                     contentContainerStyle={{margin:0,padding:0}}
-                    keyExtractor={this._keyExtractor}
-                    renderItem={this._renderCardItem} />;
+                    ItemSeparatorComponent={({highlighted}) => (
+                      <View style={[highlighted && {marginLeft: 0}]} />
+                    )}
+                    renderItem={({item, separators}) => (
+                      <TouchableHighlight onShowUnderlay={separators.highlight}
+                      onHideUnderlay={separators.unhighlight} onPress={()=> this.props.navigation.navigate("Details", item)}>
+                              <CardView styles={[{width: (sliderWidth/2)}]}  funcs={this.props.navigation.navigate}  data={item} />
+                      </TouchableHighlight>
+                    )}
+                    />;
         } else {
           isloaded = <ActivityIndicator style={{marginTop: "10%"}} />
         }

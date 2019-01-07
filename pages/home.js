@@ -4,7 +4,7 @@ import CardView from '../Compoents/CardView';
 import { Button, Icon, Drawer } from 'native-base';
 import firebase from 'react-native-firebase';
 
-import { TextInput, View, ScrollView, Text, FlatList, StyleSheet, ActivityIndicator, ToastAndroid } from 'react-native';
+import { TextInput, View, ScrollView, Text, FlatList, StyleSheet, ActivityIndicator, ToastAndroid, TouchableHighlight } from 'react-native';
 import { sliderWidth } from '../styles/SliderEntry.style';
 import SliderEntry from '../Compoents/SliderEntry';
 import ListLayout from '../Compoents/ListLayout';
@@ -20,11 +20,15 @@ class HomeScreen extends Component {
       super(props);
       this.in = 0;
       this.open = 0;
-      this.state = {data: null, isRefreshing: false, searchInput: ''}
+      this.limit = 4;
+      this.end = 0;
+      this.state = {data: [], isRefreshing: true, searchInput: '', curr: 1, lastkey: null}
       this.props.navigation.navigate = this.props.navigation.navigate.bind(this);
       this.getData = this.getData.bind(this);
       this.toggleDrawer = this.toggleDrawer.bind(this);
       this.handleRefresh = this.handleRefresh.bind(this);
+      this.handleMore = this.handleMore.bind(this);
+      this._onPress = this._onPress.bind(this);
       this.getData();
     }
 
@@ -67,63 +71,135 @@ class HomeScreen extends Component {
     }
   
     _renderCardItem = (data) => (
-      <CardView styles={[{width: (sliderWidth/2)}]} focus={this.props.isFocused} funcs={this.props.navigation.navigate} data={data} id={this.in++} />
+      <CardView styles={[{width: (sliderWidth/2)}]} focus={this.props.isFocused} funcs={this.props.navigation.navigate} data={data} key={parseInt(data.id)+(this.in++)+""} />
     );
 
     _keyExtractor = (item, index) => {
-      item.id 
+      item.key
     };
 
+    handleMore(){
+      if(this.end <= (parseInt(this.state.lastkey)+1)){
+        ToastAndroid.show(`No More Products`, ToastAndroid.SHORT);
+        return;
+      }
+      console.log("E: ", this.state.lastkey, this.end);
+      // ToastAndroid.show("Start Loading", ToastAndroid.SHORT);
+      let startkey = (parseInt(this.state.lastkey)+1)+"";
+      let lastkey = (parseInt(this.state.lastkey)+this.limit)+"";
+      console.log(startkey, lastkey);
+      this.setState({isRefreshing: true}, ()=>{
+        firebase.database().ref("/data").orderByKey().limitToFirst(this.limit).startAt(startkey).endAt(lastkey).once("value", (res)=>{
+          let list = res.val();
+          let data = this.state.data;
+          let last = null;
+          for(let key in list){
+            let value = list[key];
+            value =  {key: key, val: value};
+            last = key;
+            data = data.concat(value)
+          }
+          // ToastAndroid.show(`${data.length} More Products`, ToastAndroid.SHORT);
+          
+          this.setState({
+            data: data, 
+            lastkey: last,
+            isRefreshing: false
+          });
+          // console.error(`${JSON.stringify(data)}`);
+          console.log(this.state.data)
+        }, (err)=> {
+          console.error(err)
+          ToastAndroid.show(err, ToastAndroid.SHORT);
+        })
+        firebase.database().ref("/posts").once("value", (res)=>{
+          let num = res.val();
+          this.end = num;
+        }, (err)=>{
+          console.error(err);
+        })
+      })
+      
+    }
+
     handleRefresh(){
-      ToastAndroid.show("Start Loading", ToastAndroid.SHORT);
-      this.setState({
-        isRefreshing: false
+      this.setState({isRefreshing: !this.state.isRefreshing}, ()=>{
+        this.handleMore();
       });
     }
 
 
   getData(){
-    firebase.database().ref("/data").orderByKey().limitToFirst(4).once("value", (res)=>{
-      let list = res.val();
-      let data = [];
-    
-      for(let key in list){
-        let value = list[key];
-        value =  {id: key, val: value};
-        data = data.concat(value);
-      }
-      ToastAndroid.show(`${data.length} Products`, ToastAndroid.SHORT);
-      this.setState({data: data});
-      // console.error(`${JSON.stringify(data)}`);
-    }, (err)=> {
-      console.error(err)
-      ToastAndroid.show(err, ToastAndroid.SHORT);
-    })
+      firebase.database().ref("/data").orderByKey().limitToFirst(this.limit).once("value", (res)=>{
+        let list = res.val();
+        let data = [];
+        let last = null;
+        for(let key in list){
+          let value = list[key];
+          value =  {key: key, val: value};
+          last = key;
+          data = data.concat(value);
+        }
+        ToastAndroid.show(`${data.length} Products`, ToastAndroid.SHORT);
+        this.setState({
+          data: data, 
+          lastkey: last,
+          isRefreshing: false
+        });
+        // console.error(`${JSON.stringify(data)}`);
+      }, (err)=> {
+        console.error(err)
+        ToastAndroid.show(err, ToastAndroid.SHORT);
+      })
+      firebase.database().ref("/posts").once("value", (res)=>{
+        let num = res.val();
+        this.end = num;
+      }, (err)=>{
+        console.error(err);
+      });
   }
 
+  renderFooter = () => {
+    return (
+      <View
+        style={{
+          paddingVertical: 5,
+        }}
+      >
+        {this.state.isRefreshing && <ActivityIndicator animating size="large" />} 
+      </View>
+    );
+  };
+
+  _onPress(item){
+    this.props.navigation.navigate("Details", item);
+  }
 
     render() {
       let slider = [];
       for(let j=0;j<ENTRIES1.length;j++){
-        slider.push(<SliderEntry data={ENTRIES1[j]} style={styless.entry} ist={true} even={true} />)
+        slider.push(<SliderEntry data={ENTRIES1[j]} style={styless.entry} key={j+"2"} ist={true} even={true} />)
       }
 
       let isloaded = null;
       if(this.state.data != null){
-        isloaded = <View><Text style={[styles.title, {elevation: 3}]}>Our Products</Text>
-                  <FlatList
-                    data={this.state.data}
+        isloaded = <FlatList
+                    ItemSeparatorComponent={({highlighted}) => (
+                      <View style={[highlighted && {marginLeft: 0}]} />
+                    )}
                     numColumns={2}
                     style={[styless.newv]}
                     contentContainerStyle={{margin:0,padding:0}}
-                    keyExtractor={this._keyExtractor}
-                    renderItem={this._renderCardItem}
-                    onEndReached={this.handleRefresh}
-                    onEndThreshold={0}
-                  /></View>;
-      } else {
-        isloaded = <ActivityIndicator style={{marginTop: "40%"}} />
-      }
+                    data={this.state.data}
+                    renderItem={({item, separators}) => (
+                      <TouchableHighlight onShowUnderlay={separators.highlight}
+                      onHideUnderlay={separators.unhighlight} onPress={()=> this._onPress(item)}>
+                              <CardView styles={[{width: (sliderWidth/2)}]} focus={this.props.isFocused}  funcs={this.props.navigation.navigate}  data={item} />
+                      </TouchableHighlight>
+                    )}
+                    ListFooterComponent={this.renderFooter}
+                  />;
+      } 
 
       return (
         <Drawer style={styles.container} content={<MenuScreen navigate={this.props.navigation.navigate} />}  ref={(ref) => { this.drawer = ref; }} tapToClose={true} onClose={()=>this.drawer._root.close()} >
@@ -135,8 +211,9 @@ class HomeScreen extends Component {
                   <ListLayout title={""} width={200}>
                     {slider}
                   </ListLayout>
+                  <Text style={[styles.title, {elevation: 3}]}>Our Products</Text>
                   {isloaded}
-                  { this.state.isRefreshing?  <ActivityIndicator />: false }
+                  <Button warning block onPress={()=>this.handleMore()}><Text style={[{color: "white"}]}>Load More</Text></Button>
             </ScrollView>
         </Drawer>
       );

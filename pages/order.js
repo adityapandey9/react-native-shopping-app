@@ -17,7 +17,7 @@ export default class OrderScreen extends Component {
     constructor(props) {
       super(props);
       this.in = 0;
-      this.product = this.props.navigation.state.params.item;
+      this.product = this.props.navigation.state.params;
     //   this.product = this.items.item;
       this.state = {
           name: "", 
@@ -37,7 +37,6 @@ export default class OrderScreen extends Component {
 
     static navigationOptions = ({ navigation, navigationOptions }) => {
       const { params } = navigation.state;
-      const title = params.title;
   
       return {
         title: "Place Order",
@@ -48,9 +47,9 @@ export default class OrderScreen extends Component {
     getData(){
         const uid =  (global.config<=1)? "s76aK38yMES6ATnXrFJiZnxhChs2" : firebase.auth().currentUser.uid;
         const addr = {name: this.state.name, pincode: this.state.pincode, locality: this.state.locality, city: this.state.city, address: this.state.address, phone: this.state.phone};
-        const order = {id: this.product.id, status: "Ordered Placed", date: new Date().toDateString(), payment: "cod"}
+        const order = {id: this.product.key, status: "Ordered Placed", date: new Date().toDateString(), payment: "cod"}
          firebase.database().ref("/orders/"+uid).push(order, (res)=> {
-            ToastAndroid.show("Your Order has been placed");
+            ToastAndroid.show("Your Order has been placed", ToastAndroid.SHORT);
         })
         firebase.database().ref("/user/"+uid+"/address").set(addr, (res)=>{
             this.props.navigation.goBack();
@@ -121,6 +120,7 @@ export default class OrderScreen extends Component {
     
 
     render() {
+    
     let pic = {uri: this.product.val.msrc};
     let newprice = this.product.val.price-(this.product.val.price*(this.product.val.discount/100));
     let btntxt = "Continue";

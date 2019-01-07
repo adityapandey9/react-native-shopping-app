@@ -20,8 +20,9 @@ export default class CardView extends Component {
       this.addtoFav = this.addtoFav.bind(this);
       this.getStatus = this.getStatus.bind(this);
       this.cancelOrder = this.cancelOrder.bind(this);
-      this.product = this.props.type ?{item: this.props.data.item.data} : this.props.data;
-      const aid = this.props.type ? this.props.data.item.data.key : this.props.data.item.key;
+      // console.log(this.props.data)
+      this.product = this.props.type ? this.props.data.data : this.props.data;
+      const aid = this.props.type ? this.props.data.data.key : this.props.data.key;
       this.mkey = ''+aid;
       // ToastAndroid.show("V: "+this.props.focus, ToastAndroid.SHORT);
       global.storage.load({
@@ -34,7 +35,7 @@ export default class CardView extends Component {
     }
 
     calltoOwner(){
-      this.props.funcs("Order", this.props.data);
+      this.props.funcs("Order", this.product);
     }
 
     addtoFav(checked){
@@ -45,13 +46,13 @@ export default class CardView extends Component {
         });
         this.setState({checked: false})
         if(this.props.type)
-          this.props.pops(this.props.id);
+          this.props.pops(this.mkey);
         return;
       }
       global.storage.save({
         key: 'wishlist',  // Note: Do not use underscore("_") in key!
 	      id: this.mkey,	  // Note: Do not use underscore("_") in id!	
-	      data: {data: this.props.data.item, date: new Date().toDateString()},
+	      data: {data: this.product, date: new Date().toDateString()},
 	      expires: null,
       });
       this.setState({checked})
@@ -59,7 +60,7 @@ export default class CardView extends Component {
 
     cancelOrder(){
       const uid =  (global.config<=1)? "s76aK38yMES6ATnXrFJiZnxhChs2" : firebase.auth().currentUser.uid;
-      firebase.database().ref("/orders/"+uid+"/"+this.product.item.ordkey).update({status: "Cancelled"}, (res)=>{
+      firebase.database().ref("/orders/"+uid+"/"+this.product.ordkey).update({status: "Cancelled"}, (res)=>{
         ToastAndroid.show("Your Order has been cancelled", ToastAndroid.SHORT);
       })
     }
@@ -72,7 +73,7 @@ export default class CardView extends Component {
       //If it is wishlist
       if(this.props.type == 2){
         timetext = "Wishlist"
-        etime = this.props.data.item.date;
+        etime = this.props.data.date;
         left = (<View>
               <Button transparent onPress={()=>this.addtoFav(this.state.checked)}>
                 <Icon name="ios-close" style={[{fontWeight: 'bold', fontSize: 50}]} />
@@ -80,16 +81,16 @@ export default class CardView extends Component {
           </View>);
       } else {
         timetext = "Ordered";
-        etime = this.props.data.item.data.date;
+        etime = this.props.data.data.date;
         left = (<View>
                 <Text style={{fontWeight: "bold"}}>
                   Status: 
                 </Text>
                 <Text>
-                  {this.props.data.item.data.status}
+                  {this.props.data.data.status}
                 </Text>
           </View>);
-        if(this.product.item.status != "Cancelled"){
+        if(this.product.status != "Cancelled"){
           cancel = (<Body>
             <Button transparent onPress={()=>this.cancelOrder()}>
               <Text>Cancel Order</Text>
@@ -116,11 +117,16 @@ export default class CardView extends Component {
     }
 
     render(){
-      let product =  this.props.type ? this.props.data.item.data.val : this.props.data.item.val;
+      // if(this.props.type)
+        // console.error(this.props.data)
+      let product =  this.props.type ? this.props.data.data.val : this.props.data.val;
       let status = this.props.type ? this.getStatus(): false;
+      if(product == null)
+        console.error(product, this.props.data)
       // if(this.props.tre)
         // console.error(product, this.props.data)
-      let price = product.price;
+      let price = product.price+"";
+      price = parseInt(price.replace(/\D/g,''));
       let newprice = price-(price*(product.discount/100));
       newprice = newprice.toFixed(2);
       let discount = (product.discount || product.discount != 0) ? (
@@ -135,8 +141,7 @@ export default class CardView extends Component {
       ) : false;
 
       return (
-        <TouchableHighlight style={[this.props.style,{paddingBottom: 0}]} underlayColor="white" activeOpacity={1} onPress={()=>this.props.funcs("Details", this.product)}>
-        <Content style={[this.props.styles, {padding: 0, marginBottom: -5, marginTop: -5, marginLeft: -5, elevation: 0}]}>
+        <View style={[this.props.styles, this.props.style, {paddingBottom: 0}, {padding: 0, marginBottom: -5, marginTop: -5, marginLeft: -5, elevation: 0}]}>
           <Card padding={10} paddingLeft={14} margin={-1} elevation={0} transparent>
             <CardItem cardBody>
               <Image source={{uri: product.msrc}} style={styles.img} resizeMode='contain' />
@@ -178,8 +183,7 @@ export default class CardView extends Component {
             </CardItem>
             {status}
           </Card>
-        </Content>
-        </TouchableHighlight>
+        </View>
       );
     }
   }

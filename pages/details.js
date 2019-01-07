@@ -41,7 +41,7 @@ export default class DetailsScreen extends Component {
       this.state = {
         checked: false
       }
-      this.item = this.props.navigation.state.params.item;
+      this.item = this.props.navigation.state.params;
       this.product = this.item.val;
       this._renderItem = this._renderItem.bind(this);
       this.addtoFav = this.addtoFav.bind(this);
@@ -65,7 +65,7 @@ export default class DetailsScreen extends Component {
       const { params } = navigation.state;
 
       return {
-        title: params ? params.item.val.name : 'Details',
+        title: params ? params.val.name : 'Details',
         tabBarVisible: false,
       };
     };
@@ -125,13 +125,15 @@ export default class DetailsScreen extends Component {
   }
 
     render() {
+      // console.error(this.product)
       let spe = this.product.specification;
       if(typeof spe == "object")
         spe = [spe];
       // console.error(Object.keys(spe)[0], spe[Object.keys(spe)[0]])
       const imgs = this.layoutExample(3, '"Stack of cards" layout | Loop', 'stack');
-      
-      let newprice = this.product.price-(this.product.price*(this.product.discount/100));
+      let price = this.product.price+"";
+      price = parseInt(price.replace(/\D/g,''));
+      let newprice = price-(price*(this.product.discount/100));
       let discount = (this.product.discount || this.product.discount != 0) ? (
         <Text style={[styless.cross, {marginLeft: 5, fontWeight: 'bold', color: 'orange'},  {backgroundColor: 'rgba(255,255,255,0.8)'}]}>
           {this.product.discount}% off

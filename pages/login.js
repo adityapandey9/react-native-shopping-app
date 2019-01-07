@@ -59,7 +59,16 @@ export default class LoginScreen extends Component {
           });
           this.navigation.navigate("Home");
         })
-        .catch(error => this.setState({ message: `Code Confirm Error: ${error.message}` }));
+        .catch(error =>{ 
+          if(firebase.auth().currentUser){
+            global.storage.save({
+              key: "login",
+              data: this.state.phoneNumber,
+              expires: null,
+            });
+            this.navigation.navigate("Home");
+          }
+          this.setState({ message: `Code Confirm Error: ${error.message}` })});
     }
   };
 
